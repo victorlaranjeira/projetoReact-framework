@@ -1,0 +1,29 @@
+{
+  "posts": [
+    {
+      "id": "1",
+      "title": "JSON Server é Rápido",
+      "author": "Luan"
+    },
+    {
+      "id": "2",
+      "title": "Guia de Configuração",
+      "author": "Bob"
+    },
+    {
+      "id": "3dc7",
+      "title": "Aula de FrameWork",
+      "author": "Victor Laranjeira"
+    }
+  ],
+  "comments": [
+    {
+      "id": "1",
+      "body": "Ótimo post!",
+      "postId": 1
+    }
+  ],
+  "profile": {
+    "name": "Jane Doe"
+  }
+}
