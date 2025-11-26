@@ -1,29 +1,31 @@
 {
-  "posts": [
+  "expenses": [
     {
-      "id": "1",
-      "title": "JSON Server é Rápido",
-      "author": "Luan"
+      "id": 1,
+      "description": "Almoço de trabalho",
+      "value": 45.5,
+      "category": "Alimentação"
     },
     {
-      "id": "2",
-      "title": "Guia de Configuração",
-      "author": "Bob"
+      "id": 2,
+      "description": "Bilhete de ônibus",
+      "value": 4.8,
+      "category": "Transporte"
     },
     {
-      "id": "3dc7",
-      "title": "Aula de FrameWork",
-      "author": "Victor Laranjeira"
-    }
-  ],
-  "comments": [
+      "id": 3,
+      "description": "Assinatura Netflix",
+      "value": 55.9,
+      "category": "Lazer"
+    },
     {
-      "id": "1",
-      "body": "Ótimo post!",
-      "postId": 1
+      "id": "e51d",
+      "description": "almoço",
+      "value": 25,
+      "category": "Alimentação"
     }
   ],
   "profile": {
-    "name": "Jane Doe"
+    "name": "Usuário Padrão"
   }
 }

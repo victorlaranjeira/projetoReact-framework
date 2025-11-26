@@ -1,12 +1,10 @@
-import HomePage from '../pages/HomePage/HomePage'; // <-- Mantém esta importação default
-import './App.css';
 
-function App() {
+import HomePage from '../pages/HomePage/HomePage';
+
+export default function App() {
   return (
-    <div className="App">
+    <div className="min-h-screen bg-gray-100">
       <HomePage />
     </div>
   );
 }
-
-export default App;

@@ -1,132 +1,204 @@
 // src/pages/HomePage/HomePage.tsx
 
-import { useState, useEffect } from 'react';
-import { type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 
-// Caminho Corrigido (dois níveis de subida):
-import { type Post } from '../../types/Post'; 
-import { fetchAllPosts, createPost, updatePost } from '../../services/postService'; 
-import { PostList } from '../../components/PostList'; 
+import { type Expense } from '../../types/Expense';
+import {
+  fetchAllExpenses,
+  createExpense,
+  updateExpense,
+  deleteExpense
+} from '../../services/expenseService';
 
+import { ExpenseList } from "../../components/ExpenseList";
 
-// 1. CORREÇÃO PRINCIPAL: Usamos 'export default' diretamente aqui
-export default function HomePage() { 
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); 
-  const [error, setError] = useState<string | null>(null); 
+export default function HomePage() {
 
-  const [newTitle, setNewTitle] = useState('');
-  const [newAuthor, setNewAuthor] = useState('');
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // 2. useEffect para buscar posts (GET)
+  const [newDescription, setNewDescription] = useState('');
+  const [newValue, setNewValue] = useState(0);
+  const [newCategory, setNewCategory] = useState('Alimentação');
+
   useEffect(() => {
-    async function getPosts() {
+    async function load() {
       try {
         setLoading(true);
-        setError(null);
-        const data = await fetchAllPosts();
-        setPosts(data);
+        const data = await fetchAllExpenses();
+        setExpenses(data);
       } catch (err) {
-        console.error("Erro ao carregar posts:", err);
-        setError("Não foi possível carregar os posts. Verifique se o JSON Server está rodando.");
+        setError("Erro ao carregar despesas. Verifique o JSON Server.");
       } finally {
         setLoading(false);
       }
     }
-
-    getPosts();
+    load();
   }, []);
 
-  // 3. Função para lidar com o cadastro (POST)
-  async function handleAddPost(event: FormEvent) {
-    event.preventDefault();
+  async function handleAddExpense(e: FormEvent) {
+    e.preventDefault();
 
-    if (!newTitle || !newAuthor) {
-        setError("Título e autor são obrigatórios!");
-        return;
+    if (!newDescription.trim() || newValue <= 0) {
+      setError("Preencha a descrição e informe um valor maior que 0.");
+      return;
     }
-
-    const newPostData = {
-      title: newTitle,
-      author: newAuthor,
-    };
 
     try {
       setError(null);
-      const createdPost = await createPost(newPostData);
-      setPosts(prevPosts => [...prevPosts, createdPost]);
-      
-      setNewTitle('');
-      setNewAuthor('');
-      
-    } catch (error) {
-      setError("Falha ao cadastrar o post.");
-      console.error(error);
+
+      const newData = {
+        description: newDescription,
+        value: newValue,
+        category: newCategory
+      };
+
+      const created = await createExpense(newData);
+
+      setExpenses(prev => [...prev, created]);
+
+      setNewDescription('');
+      setNewValue(0);
+
+    } catch (err) {
+      setError("Falha ao cadastrar a despesa.");
+      console.error(err);
     }
   }
 
-  // 4. Função para Edição (PATCH)
-  async function handleUpdatePost(id: number, updatedFields: { title?: string, author?: string }) {
+  async function handleUpdateExpense(id: number, fields: Partial<Expense>) {
     try {
       setError(null);
-      const updatedPost = await updatePost(id, updatedFields); 
 
-      setPosts(prevPosts => 
-        prevPosts.map(post => 
-          post.id === id ? updatedPost : post
-        )
+      const updated = await updateExpense(id, fields);
+
+      setExpenses(prev =>
+        prev.map(item => (item.id === id ? updated : item))
       );
-    } catch (error) {
-      setError("Falha ao atualizar o post.");
-      console.error(error);
+
+    } catch (err) {
+      setError("Falha ao atualizar despesa.");
+      console.error(err);
     }
   }
 
+  async function handleDeleteExpense(id: number) {
+    if (!window.confirm("Deseja realmente excluir esta despesa?")) return;
 
-  // 5. Renderização Condicional
+    try {
+      setError(null);
+
+      await deleteExpense(id);
+
+      setExpenses(prev => prev.filter(item => item.id !== id));
+
+    } catch (err) {
+      setError("Erro ao excluir despesa.");
+      console.error(err);
+    }
+  }
+
   if (loading) {
-    return <h1>Carregando posts...</h1>;
+    return <h1 className="text-center text-gray-700 mt-10">Carregando...</h1>;
   }
 
   if (error) {
-    return <h1 style={{ color: 'red', textAlign: 'center' }}>Erro: {error}</h1>;
+    return (
+      <div className="max-w-xl mx-auto mt-10 bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg text-center">
+        {error}
+      </div>
+    );
   }
-  
-  // 6. Renderização do Formulário e da Lista
-  return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      
-      <h2>Adicionar Novo Post</h2>
-      <form onSubmit={handleAddPost} style={{ border: '1px dashed #007bff', padding: '20px', marginBottom: '30px', borderRadius: '8px' }}>
-        <input 
-          type="text" 
-          placeholder="Título" 
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          required
-          style={{ padding: '10px', width: '100%', boxSizing: 'border-box', marginBottom: '10px' }}
-        />
-        <input 
-          type="text" 
-          placeholder="Autor" 
-          value={newAuthor}
-          onChange={(e) => setNewAuthor(e.target.value)}
-          required
-          style={{ padding: '10px', width: '100%', boxSizing: 'border-box', marginBottom: '15px' }}
-        />
-        <button 
-          type="submit"
-          style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-        >
-            Cadastrar Post
-        </button>
-      </form>
 
-      {posts.length > 0 ? (
-          <PostList posts={posts} onUpdatePost={handleUpdatePost} />
+  return (
+    <div className="max-w-3xl mx-auto p-6 bg-gray-50 min-h-screen">
+
+      {/* Título principal */}
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center tracking-tight">
+         Controle de Despesas
+      </h1>
+
+      {/* Cartão do Formulário */}
+      <div className="bg-white shadow-xl rounded-2xl p-6 mb-10 border border-gray-200">
+        <h2 className="text-2xl font-semibold text-indigo-700 mb-4">
+          Adicionar Nova Despesa
+        </h2>
+
+        <form onSubmit={handleAddExpense} className="space-y-5">
+
+          <div>
+            <label className="font-medium text-gray-700">Descrição</label>
+            <input
+              type="text"
+              placeholder="Ex: Almoço, Uber, Netflix..."
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              required
+              className="w-full mt-2 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="font-medium text-gray-700">Valor</label>
+            <input
+              type="number"
+              placeholder="Ex: 35.90"
+              value={newValue}
+              onChange={(e) => setNewValue(parseFloat(e.target.value) || 0)}
+              required
+              min="0.01"
+              step="0.01"
+              className="w-full mt-2 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="font-medium text-gray-700">Categoria</label>
+            <select
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className="w-full mt-2 p-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-indigo-500"
+            >
+              <option>Alimentação</option>
+              <option>Transporte</option>
+              <option>Casa</option>
+              <option>Lazer</option>
+              <option>Outros</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-indigo-700 transition"
+          >
+            Registrar Despesa
+          </button>
+
+        </form>
+      </div>
+
+      {/* Total de despesas */}
+      <div className="bg-white shadow-md rounded-xl p-5 mb-8 border border-gray-200">
+        <h3 className="text-xl font-bold text-gray-700 text-right">
+          Total:
+          <span className="text-indigo-700 ml-2">
+            R$ {expenses.reduce((t, x) => t + x.value, 0).toFixed(2)}
+          </span>
+        </h3>
+      </div>
+
+      {/* Lista */}
+      {expenses.length > 0 ? (
+        <ExpenseList
+          expenses={expenses}
+          onUpdateExpense={handleUpdateExpense}
+          onDeleteExpense={handleDeleteExpense}
+        />
       ) : (
-          <h1>Nenhum post encontrado.</h1>
+        <p className="text-center text-gray-500 mt-10">Nenhuma despesa registrada.</p>
       )}
+
     </div>
   );
 }
