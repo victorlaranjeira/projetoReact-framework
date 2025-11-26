@@ -1,44 +1,24 @@
-💸 Expense Tracker – React + TypeScript + JSON Server + Tailwind
+# 📦 Projeto React + TypeScript + JSON Server
 
-Sistema simples para registrar, editar e excluir despesas, utilizando React com TypeScript, Tailwind CSS e JSON Server como API fake.
+Aplicação CRUD simples para gerenciamento de dados utilizando React, TypeScript, Vite, TailwindCSS e JSON Server.
 
-🚀 Tecnologias
+---
 
-React + TypeScript
+## 🚀 Tecnologias utilizadas
 
-Tailwind CSS v4
+- **React**
+- **TypeScript**
+- **Vite**
+- **TailwindCSS**
+- **JSON Server**
+- **Axios**
 
-JSON Server
+---
 
-Vite
+## ▶️ Como executar o projeto
 
-📦 Instalação
+### 1️⃣ Instalar dependências
+
+```bash
 npm install
-
-▶️ Rodar o projeto
-
-1. Iniciar o JSON Server
-   npx json-server --watch db.json --port 3000
-
-2. Iniciar o front-end
-   npm run dev
-
-📁 Estrutura
-src/
-├── components/
-├── pages/
-├── services/
-├── types/
-└── index.css
-
-📌 Funções do Sistema
-
-Adicionar despesas
-
-Editar despesas
-
-Excluir despesas
-
-Listagem detalhada
-
-Total calculado automaticamente
+```
