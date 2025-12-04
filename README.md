@@ -103,3 +103,5 @@ src/
 Este projeto foi desenvolvido como um exercício prático de desenvolvimento web.
 
 Se desejar contribuir, sinta-se à vontade para abrir uma _Issue_ ou enviar um _Pull Request_ para melhorias no código, performance ou _design_.
+
+Link do video de explicação: https://drive.google.com/file/d/134BtszgJBz-9AWEElJrbNP4G_N6ag8mj/view?usp=drive_link

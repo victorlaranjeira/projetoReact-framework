@@ -1,17 +1,14 @@
 
 
-import { type Expense } from '../types/Expense'; // Importação do novo tipo
+import { type Expense } from '../types/Expense';
 
-// URL base da sua API do JSON Server, AGORA com o endpoint /expenses
 const API_URL = 'http://localhost:3001'; 
-const ENDPOINT = `${API_URL}/expenses`; // Novo endpoint
+const ENDPOINT = `${API_URL}/expenses`; 
 
-/**
- * Interface para dados de criação, omitindo o ID.
- */
+
 type NewExpenseData = Omit<Expense, 'id'>;
 
-// --- FUNÇÃO 1: BUSCAR TODOS (GET) ---
+//  BUSCAR TODOS (GET) ---
 export async function fetchAllExpenses(): Promise<Expense[]> {
   try {
     const response = await fetch(ENDPOINT);
@@ -27,7 +24,7 @@ export async function fetchAllExpenses(): Promise<Expense[]> {
   }
 }
 
-// --- FUNÇÃO 2: CADASTRAR NOVO (POST) ---
+//  CADASTRAR NOVO (POST) ---
 export async function createExpense(newExpense: NewExpenseData): Promise<Expense> {
   try {
     const response = await fetch(ENDPOINT, {
@@ -49,7 +46,7 @@ export async function createExpense(newExpense: NewExpenseData): Promise<Expense
   }
 }
 
-// --- FUNÇÃO 3: ATUALIZAR EXISTENTE (PATCH) ---
+//  ATUALIZAR EXISTENTE (PATCH) ---
 export async function updateExpense(id: number, updatedData: Partial<NewExpenseData>): Promise<Expense> {
   try {
     const response = await fetch(`${ENDPOINT}/${id}`, {
@@ -71,7 +68,7 @@ export async function updateExpense(id: number, updatedData: Partial<NewExpenseD
   }
 }
 
-// --- FUNÇÃO 4: EXCLUIR REGISTRO (DELETE) ---
+//  EXCLUIR REGISTRO (DELETE) ---
 export async function deleteExpense(id: number): Promise<void> {
     try {
         const response = await fetch(`${ENDPOINT}/${id}`, {

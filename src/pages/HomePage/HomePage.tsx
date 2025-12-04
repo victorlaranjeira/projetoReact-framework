@@ -1,4 +1,3 @@
-// src/pages/HomePage/HomePage.tsx
 
 import { useState, useEffect, type FormEvent } from 'react';
 
