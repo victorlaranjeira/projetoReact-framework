@@ -1,14 +1,12 @@
+import { type Expense } from "../types/Expense";
 
+// 🔥 API DO BACKEND C#
+const API_URL = "http://localhost:5175/api";
+const ENDPOINT = `${API_URL}/expenses`;
 
-import { type Expense } from '../types/Expense';
+type NewExpenseData = Omit<Expense, "id">;
 
-const API_URL = 'http://localhost:3001'; 
-const ENDPOINT = `${API_URL}/expenses`; 
-
-
-type NewExpenseData = Omit<Expense, 'id'>;
-
-//  BUSCAR TODOS (GET) ---
+// ================= GET ALL =================
 export async function fetchAllExpenses(): Promise<Expense[]> {
   try {
     const response = await fetch(ENDPOINT);
@@ -19,20 +17,22 @@ export async function fetchAllExpenses(): Promise<Expense[]> {
 
     const data: Expense[] = await response.json();
     return data;
+
   } catch (error) {
+    console.error("Erro fetchAllExpenses:", error);
     throw error;
   }
 }
 
-//  CADASTRAR NOVO (POST) ---
+// ================= POST =================
 export async function createExpense(newExpense: NewExpenseData): Promise<Expense> {
   try {
     const response = await fetch(ENDPOINT, {
-      method: 'POST', 
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(newExpense), 
+      body: JSON.stringify(newExpense),
     });
 
     if (!response.ok) {
@@ -41,20 +41,25 @@ export async function createExpense(newExpense: NewExpenseData): Promise<Expense
 
     const createdExpense: Expense = await response.json();
     return createdExpense;
+
   } catch (error) {
+    console.error("Erro createExpense:", error);
     throw error;
   }
 }
 
-//  ATUALIZAR EXISTENTE (PATCH) ---
-export async function updateExpense(id: number, updatedData: Partial<NewExpenseData>): Promise<Expense> {
+// ================= PUT (UPDATE) =================
+export async function updateExpense(
+  id: number,
+  updatedData: Partial<NewExpenseData>
+): Promise<Expense> {
   try {
     const response = await fetch(`${ENDPOINT}/${id}`, {
-      method: 'PATCH', 
+      method: "PUT", // 🔥 C# usa PUT
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatedData), 
+      body: JSON.stringify(updatedData),
     });
 
     if (!response.ok) {
@@ -63,26 +68,31 @@ export async function updateExpense(id: number, updatedData: Partial<NewExpenseD
 
     const updatedExpense: Expense = await response.json();
     return updatedExpense;
+
   } catch (error) {
+    console.error("Erro updateExpense:", error);
     throw error;
   }
 }
 
-//  EXCLUIR REGISTRO (DELETE) ---
+// ================= DELETE =================
 export async function deleteExpense(id: number): Promise<void> {
-    try {
-        const response = await fetch(`${ENDPOINT}/${id}`, {
-            method: 'DELETE', 
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+  try {
+    const response = await fetch(`${ENDPOINT}/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-        if (!response.ok) {
-            throw new Error(`Erro ao excluir o post: ${response.status} ${response.statusText}`);
-        }
-        return;
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+      throw new Error(`Erro ao excluir: ${response.status} ${response.statusText}`);
     }
+
+    return;
+
+  } catch (error) {
+    console.error("Erro deleteExpense:", error);
+    throw error;
+  }
 }

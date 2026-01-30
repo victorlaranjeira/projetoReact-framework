@@ -1,41 +1,42 @@
-
-import { useState, useEffect, type FormEvent } from 'react';
-
-import { type Expense } from '../../types/Expense';
+import { useState, useEffect, type FormEvent } from "react";
+import { type Expense } from "../../types/Expense";
 import {
   fetchAllExpenses,
   createExpense,
   updateExpense,
-  deleteExpense
-} from '../../services/expenseService';
+  deleteExpense,
+} from "../../services/expenseService";
 
 import { ExpenseList } from "../../components/ExpenseList";
 
 export default function HomePage() {
-
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [newDescription, setNewDescription] = useState('');
-  const [newValue, setNewValue] = useState(0);
-  const [newCategory, setNewCategory] = useState('Alimentação');
+  const [newDescription, setNewDescription] = useState("");
+  const [newValue, setNewValue] = useState<number>(0);
+  const [newCategory, setNewCategory] = useState("Alimentação");
 
+  // 🔹 Carregar despesas
   useEffect(() => {
-    async function load() {
+    async function loadExpenses() {
       try {
         setLoading(true);
         const data = await fetchAllExpenses();
         setExpenses(data);
       } catch (err) {
-        setError("Erro ao carregar despesas. Verifique o JSON Server.");
+        console.error(err);
+        setError("Erro ao carregar despesas. Verifique a API.");
       } finally {
         setLoading(false);
       }
     }
-    load();
+
+    loadExpenses();
   }, []);
 
+  // 🔹 Adicionar despesa
   async function handleAddExpense(e: FormEvent) {
     e.preventDefault();
 
@@ -50,38 +51,37 @@ export default function HomePage() {
       const newData = {
         description: newDescription,
         value: newValue,
-        category: newCategory
+        category: newCategory,
       };
 
       const created = await createExpense(newData);
+      setExpenses((prev) => [...prev, created]);
 
-      setExpenses(prev => [...prev, created]);
-
-      setNewDescription('');
+      setNewDescription("");
       setNewValue(0);
-
     } catch (err) {
-      setError("Falha ao cadastrar a despesa.");
       console.error(err);
+      setError("Falha ao cadastrar despesa.");
     }
   }
 
+  // 🔹 Atualizar despesa
   async function handleUpdateExpense(id: number, fields: Partial<Expense>) {
     try {
       setError(null);
 
       const updated = await updateExpense(id, fields);
 
-      setExpenses(prev =>
-        prev.map(item => (item.id === id ? updated : item))
+      setExpenses((prev) =>
+        prev.map((item) => (item.id === id ? updated : item))
       );
-
     } catch (err) {
-      setError("Falha ao atualizar despesa.");
       console.error(err);
+      setError("Falha ao atualizar despesa.");
     }
   }
 
+  // 🔹 Excluir despesa
   async function handleDeleteExpense(id: number) {
     if (!window.confirm("Deseja realmente excluir esta despesa?")) return;
 
@@ -89,43 +89,44 @@ export default function HomePage() {
       setError(null);
 
       await deleteExpense(id);
-
-      setExpenses(prev => prev.filter(item => item.id !== id));
-
+      setExpenses((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
-      setError("Erro ao excluir despesa.");
       console.error(err);
+      setError("Erro ao excluir despesa.");
     }
   }
 
+  // 🔹 Loading
   if (loading) {
-    return <h1 className="text-center text-gray-700 mt-10">Carregando...</h1>;
-  }
-
-  if (error) {
     return (
-      <div className="max-w-xl mx-auto mt-10 bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg text-center">
-        {error}
-      </div>
+      <h1 className="text-center text-xl text-gray-700 mt-10 animate-pulse">
+        Carregando despesas...
+      </h1>
     );
   }
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-50 min-h-screen">
 
-      {/* Título principal */}
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center tracking-tight">
-         Controle de Despesas
+      {/* Título */}
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
+        Controle de Despesas
       </h1>
 
-      {/* Cartão do Formulário */}
+      {/* Erro */}
+      {error && (
+        <div className="max-w-xl mx-auto mb-6 bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg text-center">
+          {error}
+        </div>
+      )}
+
+      {/* Formulário */}
       <div className="bg-white shadow-xl rounded-2xl p-6 mb-10 border border-gray-200">
         <h2 className="text-2xl font-semibold text-indigo-700 mb-4">
           Adicionar Nova Despesa
         </h2>
 
         <form onSubmit={handleAddExpense} className="space-y-5">
-
           <div>
             <label className="font-medium text-gray-700">Descrição</label>
             <input
@@ -144,7 +145,7 @@ export default function HomePage() {
               type="number"
               placeholder="Ex: 35.90"
               value={newValue}
-              onChange={(e) => setNewValue(parseFloat(e.target.value) || 0)}
+              onChange={(e) => setNewValue(Number(e.target.value))}
               required
               min="0.01"
               step="0.01"
@@ -173,16 +174,18 @@ export default function HomePage() {
           >
             Registrar Despesa
           </button>
-
         </form>
       </div>
 
-      {/* Total de despesas */}
+      {/* Total */}
       <div className="bg-white shadow-md rounded-xl p-5 mb-8 border border-gray-200">
         <h3 className="text-xl font-bold text-gray-700 text-right">
           Total:
           <span className="text-indigo-700 ml-2">
-            R$ {expenses.reduce((t, x) => t + x.value, 0).toFixed(2)}
+            R$
+            {expenses
+              .reduce((total, e) => total + Number(e.value), 0)
+              .toFixed(2)}
           </span>
         </h3>
       </div>
@@ -195,9 +198,10 @@ export default function HomePage() {
           onDeleteExpense={handleDeleteExpense}
         />
       ) : (
-        <p className="text-center text-gray-500 mt-10">Nenhuma despesa registrada.</p>
+        <p className="text-center text-gray-500 mt-10">
+          Nenhuma despesa registrada.
+        </p>
       )}
-
     </div>
   );
 }

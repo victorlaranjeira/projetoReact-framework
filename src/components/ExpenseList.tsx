@@ -1,25 +1,24 @@
-
-
-import { useState, type FormEvent } from 'react';
-import { type Expense } from '../types/Expense';
+import { useState, type FormEvent } from "react";
+import { type Expense } from "../types/Expense";
 
 const CATEGORIES = ["Alimentação", "Transporte", "Casa", "Lazer", "Outros"];
 
-// Props da lista
 interface ExpenseListProps {
   expenses: Expense[];
   onUpdateExpense: (id: number, updatedFields: Partial<Expense>) => Promise<void>;
   onDeleteExpense: (id: number) => Promise<void>;
 }
 
-// Exportação nomeada
-export function ExpenseList({ expenses, onUpdateExpense, onDeleteExpense }: ExpenseListProps) {
+export function ExpenseList({
+  expenses,
+  onUpdateExpense,
+  onDeleteExpense,
+}: ExpenseListProps) {
 
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
-
-  const [currentDescription, setCurrentDescription] = useState('');
+  const [currentDescription, setCurrentDescription] = useState("");
   const [currentValue, setCurrentValue] = useState(0);
-  const [currentCategory, setCurrentCategory] = useState('');
+  const [currentCategory, setCurrentCategory] = useState("Outros");
 
   const handleStartEdit = (expense: Expense) => {
     setEditingExpenseId(expense.id);
@@ -28,9 +27,11 @@ export function ExpenseList({ expenses, onUpdateExpense, onDeleteExpense }: Expe
     setCurrentCategory(expense.category);
   };
 
-  const handleCancelEdit = () => setEditingExpenseId(null);
+  const handleCancelEdit = () => {
+    setEditingExpenseId(null);
+  };
 
-  const handleSaveEdit = (e: FormEvent) => {
+  const handleSaveEdit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!currentDescription.trim() || currentValue <= 0) {
@@ -40,10 +41,10 @@ export function ExpenseList({ expenses, onUpdateExpense, onDeleteExpense }: Expe
 
     if (editingExpenseId === null) return;
 
-    onUpdateExpense(editingExpenseId, {
+    await onUpdateExpense(editingExpenseId, {
       description: currentDescription,
       value: currentValue,
-      category: currentCategory
+      category: currentCategory,
     });
 
     setEditingExpenseId(null);
@@ -55,15 +56,10 @@ export function ExpenseList({ expenses, onUpdateExpense, onDeleteExpense }: Expe
       {expenses.map((expense) => (
         <div
           key={expense.id}
-          className="
-            bg-white p-5 rounded-2xl shadow
-            border border-gray-200
-            transition-all duration-300
-            hover:shadow-xl hover:scale-[1.01]
-          "
+          className="bg-white p-5 rounded-2xl shadow border border-gray-200 hover:shadow-xl transition-all"
         >
 
-          {/* MODO DE EDIÇÃO */}
+          {/* ===== MODO EDITAR ===== */}
           {editingExpenseId === expense.id ? (
             <form
               onSubmit={handleSaveEdit}
@@ -73,16 +69,14 @@ export function ExpenseList({ expenses, onUpdateExpense, onDeleteExpense }: Expe
                 type="text"
                 value={currentDescription}
                 onChange={(e) => setCurrentDescription(e.target.value)}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500"
-                required
+                className="w-full p-3 rounded-lg border"
               />
 
               <input
                 type="number"
                 value={currentValue}
-                onChange={(e) => setCurrentValue(parseFloat(e.target.value))}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500"
-                required
+                onChange={(e) => setCurrentValue(Number(e.target.value))}
+                className="w-full p-3 rounded-lg border"
                 min="0.01"
                 step="0.01"
               />
@@ -90,58 +84,58 @@ export function ExpenseList({ expenses, onUpdateExpense, onDeleteExpense }: Expe
               <select
                 value={currentCategory}
                 onChange={(e) => setCurrentCategory(e.target.value)}
-                className="w-full p-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-orange-500"
-                required
+                className="w-full p-3 rounded-lg border bg-white"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-3">
                 <button
                   type="submit"
-                  className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-semibold shadow-sm"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg"
                 >
                   Salvar
                 </button>
+
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg font-semibold shadow-sm"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg"
                 >
                   Cancelar
                 </button>
               </div>
             </form>
           ) : (
-            /* MODO VISUALIZAÇÃO */
-            <div className="flex items-center justify-between">
+            /* ===== MODO VISUALIZAR ===== */
+            <div className="flex justify-between items-center">
 
               <div>
-                <h3 className="text-xl font-semibold text-gray-800">
+                <h3 className="text-lg font-bold">
                   {expense.description}
                   <span className="text-sm text-gray-500 ml-2">
                     ({expense.category})
                   </span>
                 </h3>
 
-                <p className="text-2xl font-bold text-red-600 mt-1">
-                  - R$ {expense.value.toFixed(2)}
+                <p className="text-2xl font-bold text-red-600">
+                  R$ {expense.value.toFixed(2)}
                 </p>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={() => handleStartEdit(expense)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm text-sm"
+                  className="bg-blue-500 text-white px-3 py-2 rounded-lg"
                 >
                   Editar
                 </button>
 
                 <button
                   onClick={() => onDeleteExpense(expense.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-sm text-sm"
+                  className="bg-red-500 text-white px-3 py-2 rounded-lg"
                 >
                   Excluir
                 </button>
@@ -152,7 +146,6 @@ export function ExpenseList({ expenses, onUpdateExpense, onDeleteExpense }: Expe
 
         </div>
       ))}
-
     </div>
   );
 }
